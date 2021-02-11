@@ -267,7 +267,7 @@ G_optim = optim.Adam(generator.parameters(), lr=lr)
 G_and_D_unbiased_optim = optim.Adam(get_params_of_two_modules(generator, D_unbiased), lr=lr)
 
 min_valid_ppl = 1e6
-max_ok = 0
+max_passed = 0
 patience = 0
 
 it = 0
@@ -282,15 +282,14 @@ while True:
         print("Validation results: {}".format(valid_evaluation))
 
         valid_fairness_evaluation = fairness_test(agent, valid_gender_data_list)
-        ok = 0
+        passed = 0
         for m, p in valid_fairness_evaluation.items():
             if p >= 0.05:
-                ok += 1
+                passed += 1
 
-        print("ok: ", ok)
-        if ok > max_ok or ok >= 5:
+        if passed > max_passed or passed >= 5:
             print("New best results! Save the model!")
-            max_ok = ok
+            max_passed = passed
             patience = 0
 
             if not os.path.exists('save_model/{}'.format(params)):
@@ -420,7 +419,6 @@ while True:
         print(
             "train G & D_unbiased (gender)   iter: {}  batch_size: {}  temp: {}  loss_real: {:.5f}  loss_u: {:.5f}  loss_c: {:.5f}  acc_real: {:.4f}  acc_u: {:.4f}  acc_c: {:.4f}".format(
                 it, len(source), temp, loss_real.item(), loss_u.item(), loss_c.item(), acc_real, acc_u, acc_c))
-
 
     for _ in range(G_teach_steps):
         # Train on neutral batch

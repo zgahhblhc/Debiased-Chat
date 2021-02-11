@@ -163,13 +163,11 @@ def evaluate(agent, data, device):
     agent.model.eval()
 
     null_id = agent.dict.tok2ind[agent.dict.null_token]
-    eos_id = agent.dict.tok2ind[agent.dict.end_token]
     unk_id = agent.dict.tok2ind[agent.dict.unk_token]
 
     batch_size = 50
     n_batch = len(data) // batch_size
     response_list, predicted_list = [], []
-    chosen = random.randint(0, n_batch - 1)
     total_loss = 0.
     correct_tokens = 0.
     num_tokens = 0.
@@ -186,7 +184,6 @@ def evaluate(agent, data, device):
         predicted_list += [[predicted] for predicted in predicted_batch]
 
         # xs, ys: (batch_size x seq_len)
-
         xs = pad([[agent.dict.tok2ind.get(word, unk_id) for word in context.split()] for context in context_batch], padding=null_id)
         ys = pad([[agent.dict.tok2ind.get(word, unk_id) for word in response.split()] for response in response_batch], padding=null_id)
 

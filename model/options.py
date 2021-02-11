@@ -1,4 +1,3 @@
-
 opt = {'task': 'twitter',
        'download_path': '/private/home/ahm/ParlAI/downloads',
        'datatype': 'train',
