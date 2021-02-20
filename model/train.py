@@ -163,10 +163,10 @@ disen_opt = {'emb_size': 300, 'hidden_size': 1000, 'unbias_size': 200, 'content_
 print(disen_opt)
 
 disen_model = Autoencoder(emb_size=disen_opt['emb_size'], hidden_size=disen_opt['hidden_size'], unbias_size=disen_opt['unbias_size'], content_size=disen_opt['content_size'],
-                    dict_file='/mnt/home/liuhaoc1/original_ParlAI_twitter_seq2seq_model/twitter_seq2seq_model.dict',
+                    dict_file='../data/twitter_seq2seq_model.dict',
                     dropout=disen_opt['dropout'], rnn_class=disen_opt['rnn_class'], device=device).to(device)
 
-disen_model_file = 'disentangle_model/save_model/model_with_bow.pt'
+disen_model_file = 'disentangle_model/save_model/disen_model.pt'
 disen_model.load_state_dict(torch.load(disen_model_file))
 print("Disentangle model {} loaded.".format(disen_model_file))
 
@@ -191,7 +191,6 @@ parser.add_argument('--G_teach_steps', type=int, default=1)
 parser.add_argument('--k0', type=int, default=1)
 parser.add_argument('--k1', type=int, default=1)
 parser.add_argument('--k2', type=int, default=1)
-parser.add_argument('--nc', type=str, default='small')
 
 args = parser.parse_args()
 
@@ -202,7 +201,6 @@ temp = 1
 k0 = args.k0
 k1 = args.k1
 k2 = args.k2
-nc = args.nc
 D_biased_steps = args.D_biased_steps
 G_adv_steps = args.G_adv_steps
 G_teach_steps = args.G_teach_steps
@@ -215,24 +213,16 @@ with open('adv_train_data.json', 'r') as f:
     train_gender_data_list, train_neutral_data_list = json.load(f)
 
 print("Loading neutral corpus ...")
-if nc == 'large':
-    train_neutral_data_list = get_data_for_inference('/mnt/home/liuhaoc1/ParlAI/data/Twitter/train.txt', withlabel=True)
-valid_data_list = get_data_for_inference('/mnt/home/liuhaoc1/ParlAI/data/Twitter/valid.txt')
-test_data_list = get_data_for_inference('/mnt/home/liuhaoc1/ParlAI/data/Twitter/test.txt')
 
-# gender_words = []
-# gender_word_ids = []
-# with open('words/gender_words', 'r') as f:
-#     word_lines = f.readlines()
-# for line in word_lines:
-#     male_word, female_word = line.strip().split(' - ')
-#     gender_words += [male_word, female_word]
-# for word in gender_words:
-#     if word in agent.dict.tok2ind:
-#         gender_word_ids.append(agent.dict.tok2ind[word])
+
+# The neutral Twitter dataset for validating and testing the performance of the dialogue model is from ParlAI.
+# For more details, please see https://parl.ai/docs/tutorial_task.html
+
+valid_data_list = get_data_for_inference('/ParlAI/data/Twitter/valid.txt')
+test_data_list = get_data_for_inference('/ParlAI/data/Twitter/test.txt')
 
 male_to_female, female_to_male = {}, {}
-with open('words/gender_words', 'r') as f:
+with open('../data/gender_words', 'r') as f:
     word_lines = f.readlines()
 for line in word_lines:
     male_word, female_word = line.strip().split(' - ')
@@ -259,7 +249,7 @@ for text, _, _ in train_gender_data_list[-5000:]:
     elif contain_word(text, female_to_male):
         valid_gender_data_list.append((' '.join([w if w not in female_to_male else female_to_male[w] for w in text.split()]), text))
 
-with open('../Evaluation/corpus/final_gender_corpus_twitter_30k.json', 'r') as f:
+with open('../data/evaluation_corpus_twitter_30k.json', 'r') as f:
     test_gender_data_list = json.load(f)
 
 D_biased_optim = optim.Adam(D_biased.parameters(), lr=lr)

@@ -192,7 +192,7 @@ if __name__ == '__main__':
     test_data_list = get_data_for_inference('/mnt/home/liuhaoc1/ParlAI/data/Twitter/test.txt')
 
     if not os.path.exists('results/' + args.dialog_model + '_left_results.txt'):
-        detect(agent, 'corpus/final_gender_corpus_twitter_30k.json')
+        detect(agent, 'corpus/evaluation_corpus_twitter_30k.json')
 
     f_left = open('results/' + args.dialog_model + '_left_results.txt', 'r')
     left_lines = f_left.readlines()

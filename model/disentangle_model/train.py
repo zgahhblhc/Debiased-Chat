@@ -95,7 +95,7 @@ def get_bow(batch):
 
 stop_words = stopwords.words('english')
 gender_words = []
-with open('gender_words', 'r') as f:
+with open('../../data/gender_words', 'r') as f:
     word_lines = f.readlines()
 for line in word_lines:
     male_word, female_word = line.strip().split(' - ')
@@ -111,7 +111,7 @@ opt = {'emb_size': 300, 'hidden_size': 1000, 'unbias_size': 200, 'content_size':
 print(opt)
 
 model = Autoencoder(emb_size=opt['emb_size'], hidden_size=opt['hidden_size'], unbias_size=opt['unbias_size'], content_size=opt['content_size'],
-                    dict_file='/mnt/home/liuhaoc1/original_ParlAI_twitter_seq2seq_model/twitter_seq2seq_model.dict',
+                    dict_file='../../data/twitter_seq2seq_model.dict',
                     dropout=opt['dropout'], rnn_class=opt['rnn_class'], device=device).to(device)
 
 n_epoch = 20
@@ -135,7 +135,7 @@ padding_weights = torch.ones(vocab_size).to(device)
 padding_weights[null_id] = 0
 WeightedCrossEntropyLoss = nn.CrossEntropyLoss(weight=padding_weights, reduce=True, reduction='mean')
 
-with open('../unbias_corpus.json', 'r') as f:
+with open('../../data/unbias_corpus.json', 'r') as f:
     data_list = json.load(f)
     train_data_list = data_list[:-5000]
     valid_data_list = data_list[-5000:]
@@ -325,7 +325,7 @@ for epoch in range(n_epoch):
 
             print("Validation ppl: {}  u_acc: {}  c_acc: {}".format(ppl, u_correct_num / u_num, c_correct_num / c_num))
 
-            torch.save(model.state_dict(), 'save_model/model_with_bow.pt')
-            print("Model saved to save_model/model_with_bow.pt")
+            torch.save(model.state_dict(), 'save_model/disen_model.pt')
+            print("Model saved to save_model/disen_model.pt")
             print("Model performance: ppl_{:.4f} u_acc_{:.4f} c_acc_{:.4f}".format(ppl, u_correct_num / u_num,
                                                                                    c_correct_num / c_num))
